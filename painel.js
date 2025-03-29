@@ -1,4 +1,4 @@
-/// Configuração do Firebase
+// Configuração do Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDlgIizNtz3lCspNnwOfZrZEN2RU7AFopA",
     authDomain: "dsingebr-v2.firebaseapp.com",
@@ -17,7 +17,6 @@ if (!firebase.apps.length) {
         }
     };
     firebase.firestore().settings(firestoreSettings);
-    
 }
 
 const db = firebase.firestore();
@@ -152,6 +151,7 @@ const updateTvGrid = () => {
             <div class="tv-status">${tv.status === 'off' ? 'OFF' : 'ON'}</div>
             <span>${tv.name}</span>
             <small>${category?.name || 'Sem categoria'}</small>
+            ${tv.activationKey ? '<div class="activation-badge">Ativada</div>' : ''}
             <div class="tv-actions">
                 <button class="tv-action-btn toggle-tv-btn" data-id="${tv.id}" title="${tv.status === 'off' ? 'Ligar' : 'Desligar'}">
                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEzIDNoLTJ2MTBoMlYzem03IDhoLTRjLTEuMS0yLjQtMi41LTQuOC00LTYgMS4zLTEuMyAyLjYtMi4yIDQtMyAyLjIgMS4zIDMuNSAzIDQgNXoiLz48L3N2Zz4=" width="14" height="14">
@@ -166,7 +166,7 @@ const updateTvGrid = () => {
                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTExIDE3aDJ2LTZoLTJ2NnptMS0xNUM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6bTAtMTRjLTIuMjEgMC00IDEuNzktNCA0aDJjMC0xLjEuOS0yIDItMnMyIC45IDIgMmMwIDItMyAxLjc1LTMgNWgyYzAtMi4yNSAzLTIuNSAzLTUgMC0yLjIxLTEuNzktNC00LTR6Ii8+PC9zdmc+" width="14" height="14">
                 </button>
                 <button class="tv-action-btn delete-tv-btn" data-id="${tv.id}" title="Excluir">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTYgMTlhMiAyIDAgMCAwIDIgMmg4YTIgMiAwIDAgMCAyLTJWN0g2djEyTTE5IDRIMTUuNWwtMS0xaC01bC0xIDFINHYyaDE2VjR6Ii8+PC9zdmc+" width="14" height="14">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTYgMTlhMiAyIDAgMCAwIDIgMmg4YTIgMiAwIDAgMCAyLTJWN0g2djEyTTE5IDRIMTUuNWwtMS0xaC05bC0xIDFINHYyaDE2VjR6Ii8+PC9zdmc+" width="14" height="14">
                 </button>
             </div>
         `;
@@ -195,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCategoryList();
         updateTvGrid();
     });
-    
 
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', e => {
@@ -204,11 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
             document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
             document.getElementById(link.dataset.section).classList.add('active');
-           
         });
     });
-    
-    
+
+    document.getElementById('dskey-btn-header').addEventListener('click', () => {
+        window.location.href = 'Dskey.html';
+    });
 
     const categoryModal = document.getElementById('category-modal');
     document.querySelector('.select-categories-btn').addEventListener('click', () => {
@@ -331,8 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
         addTvModal.style.display = 'block';
         updateCategoryList();
     });
-      // Botão Dskey
-      
 
     document.querySelector('#add-tv-modal .close-btn').addEventListener('click', () => {
         addTvModal.style.display = 'none';
@@ -341,13 +339,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-tv-submit-btn').addEventListener('click', async () => {
         const name = document.getElementById('tv-name').value.trim();
         const categoryId = document.getElementById('tv-category').value;
+        const activationKey = document.getElementById('tv-activation-key').value.trim();
+        
         if (!name || !categoryId) {
-            showToast('Preencha todos os campos', 'error');
+            showToast('Preencha todos os campos obrigatórios', 'error');
             return;
         }
 
         const newId = (tvs.length ? Math.max(...tvs.map(t => parseInt(t.id))) + 1 : 1).toString();
-        const newTv = { id: newId, name, categoryId, status: 'on' };
+        const newTv = { 
+            id: newId, 
+            name, 
+            categoryId, 
+            status: 'on',
+            activationKey: activationKey || null,
+            deviceName: activationKey ? `Dispositivo ${newId}` : null,
+            lastActivation: activationKey ? new Date() : null
+        };
         console.log('Adicionando TV:', newTv);
 
         tvs.push(newTv);
@@ -357,6 +365,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await db.collection('tvs').doc(newId).set(newTv);
                 showToast('TV adicionada!', 'success');
+                
+                // Se houver chave de ativação, enviar notificação para o dispositivo
+                if (activationKey) {
+                    await db.collection('notifications').add({
+                        tvId: newId,
+                        activationKey: activationKey,
+                        type: 'activation',
+                        tvData: newTv,
+                        timestamp: new Date()
+                    });
+                }
             } catch (err) {
                 console.error('Erro ao adicionar TV no Firebase:', err);
                 showToast('Salva localmente', 'info');
@@ -366,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.getElementById('tv-name').value = '';
+        document.getElementById('tv-activation-key').value = '';
         addTvModal.style.display = 'none';
         updateTvGrid();
     });
@@ -377,24 +397,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const tv = tvs.find(t => t.id === tvId);
             tv.status = tv.status === 'off' ? 'on' : 'off';
             saveLocalData();
-        }
+
             if (isOnline()) {
                 try {
                     await db.collection('tvs').doc(tvId).update({ status: tv.status });
-                showToast(`TV ${tv.status === 'off' ? 'desligada' : 'ligada'}`, 'success');
-                // Envia notificação para o dispositivo
-                if (tv.activationKey) {
-                    await db.collection('notifications').add({
-                        tvId: tvId,
-                        activationKey: tv.activationKey,
-                        type: 'status',
-                        value: tv.status,
-                        timestamp: new Date()
-                    });
+                    showToast(`TV ${tv.status === 'off' ? 'desligada' : 'ligada'}`, 'success');
+                    
+                    // Envia notificação para o dispositivo
+                    if (tv.activationKey) {
+                        await db.collection('notifications').add({
+                            tvId: tvId,
+                            activationKey: tv.activationKey,
+                            type: 'status',
+                            value: tv.status,
+                            timestamp: new Date()
+                        });
+                    }
+                } catch (err) {
+                    console.error('Erro ao atualizar status:', err);
+                    showToast('Alteração salva localmente', 'info');
                 }
-            } catch (err) {
-                console.error('Erro ao atualizar status:', err);
-                showToast('Alteração salva localmente', 'info');
             }
 
             updateTvGrid();
@@ -428,10 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#upload-media-modal .close-btn').addEventListener('click', () => {
         document.getElementById('upload-media-modal').style.display = 'none';
     });
-    document.getElementById('dskey-btn')?.addEventListener('click', () => {
-        window.location.href = 'Dskey.html';
-    });
-    
+
     document.getElementById('upload-media-btn').addEventListener('click', async () => {
         const tvId = document.getElementById('upload-media-btn').dataset.tvId;
         const mediaType = document.getElementById('media-type').value;
@@ -450,7 +469,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Selecione um arquivo e conecte-se', 'error');
                 return;
             }
-            
 
             const storageRef = storage.ref(`tv_media/${tvId}/${file.name}`);
             const uploadTask = storageRef.put(file);

@@ -448,7 +448,21 @@ body {
     word-break: break-all;
 }
 
-.dskey-btn {
+
+/* Mantenha todo o CSS anterior e adicione estas novas regras */
+
+.activation-badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.dskey-btn-nav {
     padding: 10px 20px;
     background-color: #0a0f2b;
     color: #00d4ff;
@@ -457,10 +471,17 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: all 0.3s;
-    margin-top: 15px;
+    margin-left: 10px;
 }
 
-.dskey-btn:hover {
+.dskey-btn-nav:hover {
     background-color: #1a1f3b;
     box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.painel-menu ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }

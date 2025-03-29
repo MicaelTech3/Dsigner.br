@@ -19,6 +19,7 @@
                     <li><a href="#app" class="nav-link" data-section="app-section">App</a></li>
                     <li><a href="#perfil" class="nav-link" data-section="perfil-section">Perfil</a></li>
                     <li><a href="#support" class="nav-link" data-section="support-section">Suporte</a></li>
+                    <li><button id="dskey-btn-header" class="dskey-btn-nav">Dskey</button></li>
                     <li><a href="#" id="logout-link">Sair</a></li>
                 </ul>
             </nav>
@@ -42,18 +43,16 @@
         </section>
 
         <section id="app-section" class="content-section">
-            <!-- Na seção app-section -->
-<div class="app-content">
-    <h2>Download do App</h2>
-    <button id="dskey-btn" class="dskey-btn">Dskey</button>
-    <div class="demo-area">
-        <h3>Como instalar</h3>
-        <div class="gallery">
-            <img src="/imagens/logo Dsigner 2.png" alt="Screenshot 1">
-            <img src="/imagens/logo_Dsigner_2.png" alt="Screenshot 2">
-        </div>
-    </div>
-</div>
+            <div class="app-content">
+                <h2>Download do App</h2>
+                <div class="demo-area">
+                    <h3>Como instalar</h3>
+                    <div class="gallery">
+                        <img src="/imagens/logo Dsigner 2.png" alt="Screenshot 1">
+                        <img src="/imagens/logo_Dsigner_2.png" alt="Screenshot 2">
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section id="perfil-section" class="content-section">
@@ -131,6 +130,10 @@
             <div class="form-group">
                 <label for="tv-category">Andar:</label>
                 <select id="tv-category"></select>
+            </div>
+            <div class="form-group">
+                <label for="tv-activation-key">Chave de Ativação (opcional):</label>
+                <input type="text" id="tv-activation-key" placeholder="Cole a chave do Dskey aqui">
             </div>
             <button id="add-tv-submit-btn">Adicionar TV</button>
         </div>
