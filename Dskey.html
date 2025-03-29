@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ativação Dsigner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1f3b;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .logo {
+            color: #00d4ff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        .container {
+            background-color: #2a2f5b;
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+        
+        .device-info {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3f6b;
+        }
+        
+        .device-name {
+            font-size: 1.1rem;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+        
+        .key-display {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #0a0f2b;
+            border: 1px dashed #00d4ff;
+            border-radius: 5px;
+            font-family: monospace;
+            text-align: center;
+            color: #00d4ff;
+            font-size: 1.1rem;
+            word-break: break-all;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-generate {
+            background-color: #00d4ff;
+            color: #0a0f2b;
+        }
+        
+        .btn-generate:hover {
+            background-color: #00b3d1;
+        }
+        
+        .btn-activate {
+            background-color: #4CAF50;
+            color: white;
+            display: none;
+        }
+        
+        .btn-activate:hover {
+            background-color: #3e8e41;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status.active {
+            display: block;
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            color: #a5d6a7;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+            display: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+
+        .btn-back {
+    background-color: #3a3f6b;
+    color: white;
+    margin-top: 10px;
+}
+
+.btn-back:hover {
+    background-color: #4a4f7b;
+}
+    </style>
+</head>
+<body>
+    <div class="logo">
+        Dsigner
+        <span>Ativação de Dispositivo</span>
+    </div>
+    
+    <div class="container">
+        <div class="device-info">
+            <div class="device-name" id="device-name">Carregando informações...</div>
+        </div>
+        
+        <div class="key-display" id="activation-key">
+            Chave não gerada
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-generate" onclick="generateKey()">Gerar Chave</button>
+            <button class="btn btn-activate" onclick="activateKey()" id="activate-btn">Ativar</button>
+        </div>
+        <!-- Adicione este botão no container, antes ou depois dos outros botões -->
+<button class="btn btn-back" onclick="window.location.href='painel.html'">Voltar ao Painel</button>
+        
+        <div class="status" id="status-message">
+            Dispositivo ativado com sucesso!
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Chave copiada para área de transferência!</div>
+    
+    <script>
+        // Configuração do Firebase (deve ser a mesma do painel)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMOi94BBj2SKVWknulDN4WPwXmEqKqU_U",
+            authDomain: "dsigner-br.firebaseapp.com",
+            projectId: "dsigner-br",
+            storageBucket: "dsigner-br.appspot.com",
+            messagingSenderId: "987403706459",
+            appId: "1:987403706459:web:1dcbc38e5b073db0125f7e"
+        };
+
+        // Inicializa o Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        
+        // Detecta informações do dispositivo
+        function getDeviceInfo() {
+            let deviceName = "Dispositivo Android";
+            const userAgent = navigator.userAgent;
+            
+            // Tenta identificar TV Box
+            if (userAgent.match(/TV|AFT|AFTM|Android TV|Box|Xbox|SmartTV|MiBox|AppleTV/i)) {
+                deviceName = "TV Box Android";
+            } else if (navigator.userAgentData && navigator.userAgentData.mobile) {
+                deviceName = "Dispositivo Móvel Android";
+            }
+            
+            // Adiciona informações de hardware se disponível
+            if (navigator.deviceMemory) {
+                deviceName += ` (${navigator.deviceMemory}GB RAM)`;
+            }
+            
+            document.getElementById('device-name').textContent = deviceName;
+            return deviceName;
+        }
+        
+        // Gera uma chave única
+        function generateKey() {
+            const deviceInfo = getDeviceInfo();
+            const uniqueString = `${deviceInfo}-${navigator.userAgent}-${navigator.hardwareConcurrency}-${Date.now()}`;
+            
+            let hash = 0;
+            for (let i = 0; i < uniqueString.length; i++) {
+                const char = uniqueString.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            
+            const key = `DSG-${Math.abs(hash).toString(16).toUpperCase().substr(0, 8)}`;
+            document.getElementById('activation-key').textContent = key;
+            document.getElementById('activate-btn').style.display = 'block';
+            
+            return key;
+        }
+        
+        // Ativa a chave no sistema
+        async function activateKey() {
+            const key = document.getElementById('activation-key').textContent;
+            const deviceName = document.getElementById('device-name').textContent;
+            
+            if (key && key !== "Chave não gerada") {
+                document.getElementById('activate-btn').disabled = true;
+                document.getElementById('activate-btn').textContent = "Ativando...";
+                
+                try {
+                    // Verifica se a chave já existe
+                    const tvRef = db.collection('tvs').where('activationKey', '==', key);
+                    const snapshot = await tvRef.get();
+                    
+                    if (!snapshot.empty) {
+                        // Chave já existe - atualiza o dispositivo
+                        const tvDoc = snapshot.docs[0];
+                        await db.collection('tvs').doc(tvDoc.id).update({
+                            deviceName: deviceName,
+                            lastActivation: new Date(),
+                            status: 'on'
+                        });
+                    } else {
+                        // Cria um novo registro
+                        await db.collection('tvs').add({
+                            name: `TV ${deviceName}`,
+                            deviceName: deviceName,
+                            activationKey: key,
+                            status: 'on',
+                            lastActivation: new Date(),
+                            createdAt: new Date()
+                        });
+                    }
+                    
+                    document.getElementById('status-message').style.display = 'block';
+                    document.getElementById('status-message').classList.add('active');
+                    document.getElementById('activate-btn').style.display = 'none';
+                    
+                    // Armazena localmente
+                    localStorage.setItem('dsigner_activated', 'true');
+                    localStorage.setItem('dsigner_activation_key', key);
+                    localStorage.setItem('dsigner_device_name', deviceName);
+                    
+                } catch (error) {
+                    console.error("Erro ao ativar dispositivo:", error);
+                    alert("Erro ao ativar dispositivo. Verifique sua conexão.");
+                    document.getElementById('activate-btn').disabled = false;
+                    document.getElementById('activate-btn').textContent = "Ativar";
+                }
+            }
+        }
+        
+        // Verifica se já está ativado ao carregar a página
+        window.onload = function() {
+            getDeviceInfo();
+            
+            // Se já estiver ativado, mostra a chave
+            if (localStorage.getItem('dsigner_activated') === 'true') {
+                const savedKey = localStorage.getItem('dsigner_activation_key');
+                document.getElementById('activation-key').textContent = savedKey;
+                document.getElementById('status-message').style.display = 'block';
+                document.getElementById('status-message').classList.add('active');
+                document.getElementById('activate-btn').style.display = 'none';
+            }
+        };
+    </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</body>
+</html>
