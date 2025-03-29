@@ -142,15 +142,19 @@
         }
 
         .btn-back {
-    background-color: #3a3f6b;
-    color: white;
-    margin-top: 10px;
-}
+            background-color: #3a3f6b;
+            color: white;
+            margin-top: 10px;
+        }
 
-.btn-back:hover {
-    background-color: #4a4f7b;
-}
+        .btn-back:hover {
+            background-color: #4a4f7b;
+        }
     </style>
+    
+    <!-- Firebase SDK - DEVE vir no HEADER antes de qualquer script que use Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="logo">
@@ -168,11 +172,10 @@
         </div>
         
         <div class="buttons">
-            <button class="btn btn-generate" onclick="generateKey()">Gerar Chave</button>
-            <button class="btn btn-activate" onclick="activateKey()" id="activate-btn">Ativar</button>
+            <button class="btn btn-generate" id="generate-btn">Gerar Chave</button>
+            <button class="btn btn-activate" id="activate-btn">Ativar</button>
         </div>
-        <!-- Adicione este botão no container, antes ou depois dos outros botões -->
-<button class="btn btn-back" onclick="window.location.href='painel.html'">Voltar ao Painel</button>
+        <button class="btn btn-back" id="back-btn">Voltar ao Painel</button>
         
         <div class="status" id="status-message">
             Dispositivo ativado com sucesso!
@@ -193,10 +196,18 @@
         };
 
         // Inicializa o Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        let db;
+        try {
+            // Verifica se o Firebase já foi inicializado
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            console.log("Firebase inicializado com sucesso!");
+        } catch (error) {
+            console.error("Erro ao inicializar Firebase:", error);
+            alert("Erro ao conectar com o servidor. Por favor, recarregue a página.");
         }
-        const db = firebase.firestore();
         
         // Detecta informações do dispositivo
         function getDeviceInfo() {
@@ -242,6 +253,11 @@
         async function activateKey() {
             const key = document.getElementById('activation-key').textContent;
             const deviceName = document.getElementById('device-name').textContent;
+            
+            if (!db) {
+                alert("Erro de conexão com o banco de dados. Tente novamente.");
+                return;
+            }
             
             if (key && key !== "Chave não gerada") {
                 document.getElementById('activate-btn').disabled = true;
@@ -291,8 +307,15 @@
         }
         
         // Verifica se já está ativado ao carregar a página
-        window.onload = function() {
+        function initPage() {
             getDeviceInfo();
+            
+            // Configura event listeners
+            document.getElementById('generate-btn').addEventListener('click', generateKey);
+            document.getElementById('activate-btn').addEventListener('click', activateKey);
+            document.getElementById('back-btn').addEventListener('click', () => {
+                window.location.href = 'painel.html';
+            });
             
             // Se já estiver ativado, mostra a chave
             if (localStorage.getItem('dsigner_activated') === 'true') {
@@ -302,11 +325,10 @@
                 document.getElementById('status-message').classList.add('active');
                 document.getElementById('activate-btn').style.display = 'none';
             }
-        };
+        }
+        
+        // Inicializa a página quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', initPage);
     </script>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </body>
 </html>
