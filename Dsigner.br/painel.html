@@ -119,6 +119,23 @@
         </div>
     </div>
 
+    <div class="modal" id="image-control-modal">
+        <div class="modal-content">
+            <span class="close-btn">×</span>
+            <h2>Controle de Imagem</h2>
+            <div class="form-group">
+                <label for="image-duration-control">Duração (segundos):</label>
+                <input type="number" id="image-duration-control" min="1" value="10">
+            </div>
+            <div class="form-group">
+                <label>Pré-visualização:</label>
+                <img id="current-image-preview" class="media-preview">
+            </div>
+            <button id="update-image-btn" class="btn">Atualizar Imagem</button>
+            <button id="change-image-btn" class="btn btn-secondary">Alterar Imagem</button>
+        </div>
+    </div>
+
     <div class="modal" id="add-tv-modal">
         <div class="modal-content">
             <span class="close-btn">×</span>
@@ -135,7 +152,7 @@
                 <label for="tv-activation-key">Chave de Ativação (opcional):</label>
                 <input type="text" id="tv-activation-key" placeholder="Cole a chave do Dskey aqui">
             </div>
-            <button id="add-tv-submit-btn">Adicionar TV</button>
+            <button id="add-tv-submit-btn" class="btn">Adicionar TV</button>
         </div>
     </div>
 
@@ -160,8 +177,12 @@
                 </select>
             </div>
             <div class="form-group" id="file-upload-group">
-                <label for="media-file">Arquivo:</label>
+                <label for="media-file">Arquivo (máx. 10MB):</label>
                 <input type="file" id="media-file" accept="image/*, video/*">
+                <div class="upload-progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <img id="media-preview" class="media-preview" alt="Pré-visualização">
             </div>
             <div class="form-group" id="link-upload-group" style="display: none;">
                 <label for="media-link">URL:</label>
@@ -176,7 +197,8 @@
                     <input type="checkbox" id="video-loop"> Repetir vídeo
                 </label>
             </div>
-            <button id="upload-media-btn">Enviar</button>
+            <button id="upload-media-btn" class="btn">Enviar</button>
+            <div id="upload-status" class="message"></div>
         </div>
     </div>
 
