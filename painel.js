@@ -1,13 +1,12 @@
 // Configuração do Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyDlgIizNtz3lCspNnwOfZrZEN2RU7AFopA",
-    authDomain: "dsingebr-v2.firebaseapp.com",
-    projectId: "dsingebr-v2",
-    storageBucket: "dsingebr-v2.appspot.com",
-    messagingSenderId: "621793308986",
-    appId: "1:621793308986:web:52b5a8de51261aca1da003"
-};
-
+    apiKey: "AIzaSyAo12uC5EM7t4_nocYhfOdTY15men1Ping",
+    authDomain: "dsigner-com-br.firebaseapp.com",
+    projectId: "dsigner-com-br",
+    storageBucket: "dsigner-com-br.firebasestorage.app",
+    messagingSenderId: "905799758619",
+    appId: "1:905799758619:web:713beeced2de2cdd7f19be"
+  };
 // Inicialização única do Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
